@@ -1,2 +1,2 @@
 var mongoose = require('mongoose');
-mongoose.connect("mongodb://admin:admin123@ds155492.mlab.com:55492/api_test");
+mongoose.connect("mongodb://admin:14768925@127.0.0.1:27017/blog?authSource=admin", { autoIndex: false });

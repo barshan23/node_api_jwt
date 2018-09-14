@@ -1,21 +1,28 @@
 var express = require('express');
 var router = express.Router();
 var bp = require('body-parser');
+var jwt = require('jsonwebtoken');
+
+var secret = 's3cr3t';
 router.use(bp.urlencoded({extended: true}));
 router.use(bp.json());
+var token_required = function(req, res, next){
+    console.log(req.headers);
+    var token = req.headers['authorization'];
+    if (!token) return res.status(401).send({message:"No token!"})
+    try {
+        token = token.split(" ")[1];
+        console.log(token);
+        var id = jwt.verify(token, secret);
+        req.user_id = id; 
+    } catch (error) {
+        console.log(error);
+        return res.status(401).send({"message":"Invalid token!"});
+    }
+    next();
+}
 
-router.post('/', (req, res) => {
-    User.create({
-        name : req.body.name,
-        email : req.body.email,
-        password : req.body.password,
-        salary : req.body.sal
-    },
-    (err, user) => {
-        if (err) return res.status(500).send("There was a problem adding the account");
-        return res.status(200).send(user);
-    });
-});
+router.use(token_required);
 
 router.get('/:id', function(req, res){
     User.findById(req.params.id, function(err, user){
